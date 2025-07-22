@@ -2240,17 +2240,16 @@ class Escola
 		$id_curso = $id_curso ? $id_curso :  Qlib::buscaValorDb('turmas','id',$id_turma,'id_curso');
 		//listar os alunos da turma
 		$arr_alunos = self::get_alunos_curso($id_curso,$id_turma);
-        dd($id_curso,$id_turma,$arr_alunos);
 		//listar todas atividade
 		$atv = Qlib::dados_tab('conteudo_ead','id,nome,config',"WHERE id_curso='$id_curso' AND config LIKE '%\"turma\":\"$id_turma\"%' AND ".Qlib::compleDelete());
-		// dd($atv);
+		dump($atv);
+        dd($id_curso,$id_turma,$arr_alunos);
         if(is_array($atv) && is_array($arr_alunos)){
 			$ret['atv'] = $atv;
 			if(is_array($atv)){
 				foreach ($atv as $katv => $vatv) {
 					if($id_atividade=$vatv['id']){
 						//marcar presença para todos da turma.
-						// $pres = self::presenca_massa($id_turma,$id_atividade,$id_curso,$arr_alunos);
 						// $ret['pres'][$katv] = $pres;
                         $arr_config = [
                             'id_turma' =>$id_turma,
@@ -2260,11 +2259,12 @@ class Escola
                             'local' =>'api',
                             'tenant_id' =>tenant('id'),
                         ];
+                        $pres = self::presenca_massa($id_turma,$id_atividade,$id_curso,$arr_alunos);
                         // echo tenant();
                         // Tenant::find(tenant('id'))->run(function () use ($arr_config) {
                         // });
                         // PresencaEmMassaJob::dispatch($arr_config);
-                        $pres = PresencaEmMassaJob::dispatch($arr_config);
+                        // $pres = PresencaEmMassaJob::dispatch($arr_config);
                         $ret['pres'][$katv] = $pres;
                         // tenant()->run(function () use ($dados) {
                         //     // EnviarRelatorioJob::dispatch($dados);
