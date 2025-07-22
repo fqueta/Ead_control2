@@ -1041,7 +1041,7 @@ class Escola
 	 * @param string $id_turma o id da turma para coletar a lista de alunos daquela turma
 	 * @param string $id_atividade a atividar respectiva
 	 */
-	static function presenca_massa($id_turma,$id_atividade,$id_curso=false,$arr_alunos=false){
+	static function presenca_massa($id_turma,$id_atividade,$id_curso=false,$arr_alunos=false,$local=''){
 		//listar todos integrantes de uma turma
 		$ret['exec'] = false;
 		$ret['mens'] = 'Erro: Presença não selecionada';
@@ -1060,7 +1060,7 @@ class Escola
 				$ret['v'][$k] = $v;
 				$ret['atv'][$k] = self::atualizar_presenca([
 					'dados_cliente'=>$v,
-				]);
+				],$local);
 				if($ret['atv'][$k]['exec']){
 					$ret['exec'] = true;
 				}
@@ -1092,7 +1092,7 @@ class Escola
 	* )
 
 	 */
-	static function atualizar_presenca($config=false){
+	static function atualizar_presenca($config=false,$local=''){
 		$ret['exec'] = false;
 		if(isset($config['dados_cliente']) && is_array($config['dados_cliente']) && isset($config['dados_cliente']['acao'])){
 			$id_atividade = isset($config['dados_cliente']['id_atividade']) ? $config['dados_cliente']['id_atividade'] : null;
@@ -1145,12 +1145,17 @@ class Escola
 				}
 				$ret['save'] = $result_salvarClientes;
 			}else{
-				//verificar e remover a inclusão da frequencia
-				$sql_remove = "DELETE FROM $tab $cond_valid";
-                $salva = DB::statement($sql_remove);
-				// $salva = salvarAlterar($sql_remove);
-				$ret['exec'] = $salva;
-				$ret['save'] = $salva;
+                if($local=='api'){
+                    $ret['exec'] = false;
+                    $ret['save'] = false;
+                }else{
+                    //verificar e remover a inclusão da frequencia
+                    $sql_remove = "DELETE FROM $tab $cond_valid";
+                    $salva = DB::statement($sql_remove);
+                    // $salva = salvarAlterar($sql_remove);
+                    $ret['exec'] = $salva;
+                    $ret['save'] = $salva;
+                }
 			}
 		}
 		// dd($ret);
@@ -1220,11 +1225,11 @@ class Escola
 			$id_turma = isset($_GET['id_turma']) ? $_GET['id_turma'] : false;
 		}
 		if(!empty($id_turma)){
-			$compleSql = " AND m.id_turma='$id_turma'";
+			$compleSql = " AND m.id_turma='$id_turma' AND m.status >'1' AND m.status < '5'";
 		}else{
 			$compleSql = "";
 		}
-		$d = Qlib::dados_tab('matriculas as m','m.id id_matricula,m.id_cliente,m.id_curso,m.id_turma,cl.Nome,cl.sobrenome,tu.nome nome_turma,tu.inicio,tu.fim',"
+		$d = Qlib::dados_tab('matriculas as m','m.id id_matricula,m.status,m.id_cliente,m.id_curso,m.id_turma,cl.Nome,cl.sobrenome,tu.nome nome_turma,tu.inicio,tu.fim',"
 		JOIN clientes as cl ON cl.id=m.id_cliente
 		JOIN turmas as tu ON tu.id=m.id_turma
 		WHERE m.id_curso='$id_curso' $compleSql AND ".Qlib::compleDelete('m'));
@@ -2235,6 +2240,7 @@ class Escola
 		$id_curso = $id_curso ? $id_curso :  Qlib::buscaValorDb('turmas','id',$id_turma,'id_curso');
 		//listar os alunos da turma
 		$arr_alunos = self::get_alunos_curso($id_curso,$id_turma);
+        dd($id_curso,$id_turma,$arr_alunos);
 		//listar todas atividade
 		$atv = Qlib::dados_tab('conteudo_ead','id,nome,config',"WHERE id_curso='$id_curso' AND config LIKE '%\"turma\":\"$id_turma\"%' AND ".Qlib::compleDelete());
 		// dd($atv);
@@ -2251,6 +2257,7 @@ class Escola
                             'id_atividade' =>$id_atividade,
                             'id_curso' =>$id_curso,
                             'arr_alunos' =>$arr_alunos,
+                            'local' =>'api',
                             'tenant_id' =>tenant('id'),
                         ];
                         // echo tenant();
