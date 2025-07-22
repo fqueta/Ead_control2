@@ -2240,7 +2240,7 @@ class Escola
 		$id_curso = $id_curso ? $id_curso :  Qlib::buscaValorDb('turmas','id',$id_turma,'id_curso');
 		//listar os alunos da turma
 		$arr_alunos = self::get_alunos_curso($id_curso,$id_turma);
-        // dd($id_curso,$id_turma,$arr_alunos);
+        dd($id_curso,$id_turma,$arr_alunos);
 		//listar todas atividade
 		$atv = Qlib::dados_tab('conteudo_ead','id,nome,config',"WHERE id_curso='$id_curso' AND config LIKE '%\"turma\":\"$id_turma\"%' AND ".Qlib::compleDelete());
 		// dd($atv);
