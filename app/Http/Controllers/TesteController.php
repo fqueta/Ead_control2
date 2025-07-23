@@ -19,8 +19,12 @@ class TesteController extends Controller
         // $ret = Escola::dadosMatricula('6875579b0c808');
         // $ret = Qlib::dataLocal();
         // $ret = Qlib::add_user_tenant('demo2','cliente1.localhost');
-        $ret = Escola::adiciona_presenca_atividades_cronograma(66);
-        // dd($ret);
+        $id_turma = $request->get('id_turma');
+        $ret = [];
+        if($id_turma){
+            $ret = Escola::adiciona_presenca_atividades_cronograma($id_turma);
+            // dd($ret);
+        }
         return $ret;
     }
 }

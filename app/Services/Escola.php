@@ -1049,7 +1049,7 @@ class Escola
 		$id_curso = $id_curso ? $id_curso :  Qlib::buscaValorDb('turmas','id',$id_turma,'id_curso');
 
 		$ret['atv'] = [];
-		// dd($arr_alunos);
+		// dump($arr_alunos,$id_atividade);
 
 		$arr_alunos = is_array($arr_alunos) ? $arr_alunos : self::get_alunos_curso($id_curso,$id_turma);
 		if(is_array($arr_alunos)){
@@ -1064,7 +1064,8 @@ class Escola
 				if($ret['atv'][$k]['exec']){
 					$ret['exec'] = true;
 				}
-                sleep(3);
+                // dump($ret['atv'][$k]);
+                // sleep(3);
                 // dd($ret);
 			}
 			if($ret['exec']){
@@ -1232,7 +1233,7 @@ class Escola
 		$d = Qlib::dados_tab('matriculas as m','m.id id_matricula,m.status,m.id_cliente,m.id_curso,m.id_turma,cl.Nome,cl.sobrenome,tu.nome nome_turma,tu.inicio,tu.fim',"
 		JOIN clientes as cl ON cl.id=m.id_cliente
 		JOIN turmas as tu ON tu.id=m.id_turma
-		WHERE m.id_curso='$id_curso' $compleSql AND ".Qlib::compleDelete('m'));
+		WHERE m.id_curso='$id_curso' $compleSql AND ".Qlib::compleDelete('m')."ORDER by m.id ASC");
 		$ret=$d;
 		return $ret;
 	}
@@ -2242,8 +2243,9 @@ class Escola
 		$arr_alunos = self::get_alunos_curso($id_curso,$id_turma);
 		//listar todas atividade
 		$atv = Qlib::dados_tab('conteudo_ead','id,nome,config',"WHERE id_curso='$id_curso' AND config LIKE '%\"turma\":\"$id_turma\"%' AND ".Qlib::compleDelete());
-		dump($atv);
-        dd($id_curso,$id_turma,$arr_alunos);
+		// dump($atv);
+        // dd($id_curso,$id_turma,$arr_alunos);
+        $get_ativ = request()->get('id_atividade');
         if(is_array($atv) && is_array($arr_alunos)){
 			$ret['atv'] = $atv;
 			if(is_array($atv)){
@@ -2251,28 +2253,32 @@ class Escola
 					if($id_atividade=$vatv['id']){
 						//marcar presença para todos da turma.
 						// $ret['pres'][$katv] = $pres;
-                        $arr_config = [
-                            'id_turma' =>$id_turma,
-                            'id_atividade' =>$id_atividade,
-                            'id_curso' =>$id_curso,
-                            'arr_alunos' =>$arr_alunos,
-                            'local' =>'api',
-                            'tenant_id' =>tenant('id'),
-                        ];
-                        $pres = self::presenca_massa($id_turma,$id_atividade,$id_curso,$arr_alunos);
-                        // echo tenant();
-                        // Tenant::find(tenant('id'))->run(function () use ($arr_config) {
-                        // });
-                        // PresencaEmMassaJob::dispatch($arr_config);
-                        // $pres = PresencaEmMassaJob::dispatch($arr_config);
-                        $ret['pres'][$katv] = $pres;
-                        // tenant()->run(function () use ($dados) {
-                        //     // EnviarRelatorioJob::dispatch($dados);
-                        // });
-                        $ret['arr_config'][$katv] = $arr_config;
-                        // dd($ret);
-                        // dd($ret);
-						// sleep(3);
+                        // if($get_ativ==$id_atividade){
+                            $arr_config = [
+                                'id_turma' =>$id_turma,
+                                'id_atividade' =>$id_atividade,
+                                'id_curso' =>$id_curso,
+                                'arr_alunos' =>$arr_alunos,
+                                'local' =>'api',
+                                'tenant_id' =>tenant('id'),
+                            ];
+                            // $pres = self::presenca_massa($id_turma,$id_atividade,$id_curso,$arr_alunos);
+                            // echo tenant();
+                            // Tenant::find(tenant('id'))->run(function () use ($arr_config) {
+                            // });
+                            // PresencaEmMassaJob::dispatch($arr_config);
+
+                            $pres = PresencaEmMassaJob::dispatch($arr_config);
+                            $ret['pres'][$katv]['atividade'] = $vatv;
+                            $ret['pres'][$katv] = $pres;
+                            // tenant()->run(function () use ($dados) {
+                            //     // EnviarRelatorioJob::dispatch($dados);
+                            // });
+                            $ret['arr_config'][$katv] = $arr_config;
+                            // dd($ret);
+                            // dd($ret);
+                            // sleep(3);
+                        // }
 					}
 				}
 			}
