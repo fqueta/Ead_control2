@@ -33,3 +33,22 @@ Route::middleware([
     //     return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     // });
 });
+
+Route::name('api.')->prefix('api/v1')->middleware([
+    'api',
+    // 'auth:sanctum',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
+    Route::fallback(function () {
+        return view('erro404_site');
+    });
+    Route::post('/login',[AuthContr AuthController::class,'login']);
+    // Route::middleware('auth:sanctum')->get('/user', [AuthController::class,'user']);
+    Route::middleware('auth:sanctum')->post('/clientes', [ClientesController::class,'store']);
+    Route::middleware('auth:sanctum')->post('/clientes-update/{cpf}', [ClientesController::class,'update']);
+    // Route::middleware('auth:sanctum')->put('/clientes/{cpf}', [ClientesController::class,'update']);
+    Route::middleware('auth:sanctum')->get('/clientes/{cpf}', [ClientesController::class,'show']);
+    Route::middleware('auth:sanctum')->delete('/clientes/{id}', [ClientesController::class,'destroy']);
+    Route::middleware('auth:sanctum')->post('/clientes-cancelar/{id}', [ClientesController::class,'cancelar_contrato']);
+});

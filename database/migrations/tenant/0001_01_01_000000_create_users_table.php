@@ -13,13 +13,31 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->string('empresa')->nullable();
-            $table->string('email')->unique();
+            $table->enum('tipo_pessoa',['pf','pj']); //pf = pessoa fisica, pj = pessoa juridica
+            // $table->string('nome');
+            $table->string('name');
+            $table->string('razao')->nullable();
+            $table->string('cpf')->unique()->nullable();
+            $table->string('cnpj')->nullable();
+            $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
+            $table->enum('status',['actived','inactived','pre_registred']);
+            $table->enum('genero',['ni','m','f']); //ni = não informado
+            $table->enum('verificado',['n','s']);
+            $table->integer('id_permission')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->json('config')->nullable();
+            $table->json('preferencias')->nullable();
+            $table->text('foto_perfil')->nullable();
+            $table->enum('ativo',['s','n']);
+            $table->integer('autor')->nullable();
+            $table->string('token','60')->nullable();
+            $table->enum('excluido',['n','s']);
+            $table->text('reg_excluido')->nullable();
+            $table->enum('deletado',['n','s']);
+            $table->text('reg_deletado')->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

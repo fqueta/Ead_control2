@@ -7,6 +7,7 @@ use App\Models\Matricula;
 use App\Models\Tenant;
 use App\Services\Qlib;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class Escola
 {
@@ -2284,8 +2285,17 @@ class Escola
 			}
 
 		}
-		dump($ret);
 		return $ret;
 	}
+    /**
+     * Metodo para adicionar presença em massa via api
+     */
+    static function add_presenca($id_turma=null){
+        $ret = ['exec'=>false,'mens'=>'Erro ao adicionar presença','color'=>'danger'];
+        if($id_turma){
+            $ret = self::adiciona_presenca_atividades_cronograma($id_turma);
+        }
+        return $ret;
+    }
 
 }

@@ -22,7 +22,7 @@ class TesteController extends Controller
         $id_turma = $request->get('id_turma');
         $ret = [];
         if($id_turma){
-            $ret = Escola::adiciona_presenca_atividades_cronograma($id_turma);
+            // $ret = Escola::adiciona_presenca_atividades_cronograma($id_turma);
             // dd($ret);
         }
         return $ret;
