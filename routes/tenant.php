@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\TesteController;
+use App\Services\Escola;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -43,12 +45,12 @@ Route::name('api.')->prefix('api/v1')->middleware([
     Route::fallback(function () {
         return view('erro404_site');
     });
-    Route::post('/login',[AuthContr AuthController::class,'login']);
+    Route::post('/login',[AuthController::class,'login']);
     // Route::middleware('auth:sanctum')->get('/user', [AuthController::class,'user']);
-    Route::middleware('auth:sanctum')->post('/clientes', [ClientesController::class,'store']);
-    Route::middleware('auth:sanctum')->post('/clientes-update/{cpf}', [ClientesController::class,'update']);
-    // Route::middleware('auth:sanctum')->put('/clientes/{cpf}', [ClientesController::class,'update']);
-    Route::middleware('auth:sanctum')->get('/clientes/{cpf}', [ClientesController::class,'show']);
-    Route::middleware('auth:sanctum')->delete('/clientes/{id}', [ClientesController::class,'destroy']);
-    Route::middleware('auth:sanctum')->post('/clientes-cancelar/{id}', [ClientesController::class,'cancelar_contrato']);
+    Route::middleware('auth:sanctum')->post('/add-presenca-massa', [Escola::class,'add_presenca'])->name('add_presenca');
+    // Route::middleware('auth:sanctum')->post('/clientes-update/{cpf}', [ClientesController::class,'update']);
+    // // Route::middleware('auth:sanctum')->put('/clientes/{cpf}', [ClientesController::class,'update']);
+    // Route::middleware('auth:sanctum')->get('/clientes/{cpf}', [ClientesController::class,'show']);
+    // Route::middleware('auth:sanctum')->delete('/clientes/{id}', [ClientesController::class,'destroy']);
+    // Route::middleware('auth:sanctum')->post('/clientes-cancelar/{id}', [ClientesController::class,'cancelar_contrato']);
 });
